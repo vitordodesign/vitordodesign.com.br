@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62">
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
   <defs>
     <style>
       .cls-1 {
-        fill: #bf0000;
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #722dff;
       }
     </style>
   </defs>
   <g id="Camada_1" data-name="Camada 1">
-    <g>
-      <path class="cls-1" d="M40.27,6.08l-9.27,18.53L21.73,6.08h18.53M50.1,0h0,0ZM50.1,0H11.9l19.1,38.2L50.1,0h0Z"/>
-      <path class="cls-1" d="M55.92,25.75v30.18h-15.09l15.09-30.18M62,0l-31,62h31V0h0Z"/>
-      <path class="cls-1" d="M6.08,25.75l15.09,30.18H6.08v-30.18M0,0v62h31L0,0h0Z"/>
-    </g>
+    <rect class="cls-1" width="50" height="50"/>
+    <path class="cls-2" d="M36.88,12.79c1.26,0,1.9.79,2.17,1.25.27.47.63,1.42,0,2.51l-11.93,20.66L13.03,12.79h23.85M36.88,5.27H0l22.78,39.46h8.68l14.1-24.42c3.86-6.68-.96-15.04-8.68-15.04h0Z"/>
   </g>
 </svg>
