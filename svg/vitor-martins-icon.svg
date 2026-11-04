@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 62">
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44.83 55.81">
   <defs>
     <style>
       .cls-1 {
-        fill: #bf0000;
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #722dff;
       }
     </style>
   </defs>
   <g id="Camada_1" data-name="Camada 1">
-    <g>
-      <path class="cls-1" d="M40.27,6.08l-9.27,18.53L21.73,6.08h18.53M50.1,0h0,0ZM50.1,0H11.9l19.1,38.2L50.1,0h0Z"/>
-      <path class="cls-1" d="M55.92,25.75v30.18h-15.09l15.09-30.18M62,0l-31,62h31V0h0Z"/>
-      <path class="cls-1" d="M6.08,25.75l15.09,30.18H6.08v-30.18M0,0v62h31L0,0h0Z"/>
-    </g>
+    <path class="cls-2" d="M22.42,5.11C10.06,5.11,0,15.17,0,27.53s10.06,22.42,22.42,22.42c.93,0,1.84-.06,2.74-.17V16.37h-5.48v27.87c-8.04-1.31-14.2-8.31-14.2-16.72h-.02c0-8.42,6.17-15.43,14.22-16.74.89-.15,1.81-.22,2.74-.22s1.85.08,2.74.22c8.06,1.31,14.22,8.32,14.22,16.74h-.02c0,6.36-3.53,11.92-8.73,14.81v6.05c8.31-3.28,14.2-11.4,14.2-20.86,0-12.36-10.06-22.42-22.42-22.42Z"/>
+    <rect class="cls-1" width="44.83" height="55.81"/>
   </g>
 </svg>
