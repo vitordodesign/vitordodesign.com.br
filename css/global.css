@@ -112,11 +112,11 @@ html {
 
   /* color */
   --white-color: #f0ebff;
-  --black-color: #000;
+  --black-color: #0a0a0a;
+  --gray-color: #303030;
   --light-purple-color: #493674;
-  --dark-purple-color: #261b41;
+  --dark-purple-color: #18102b;
   --red-color: #722dff;
-  --gray-color: #333333;
 
   /* H titles sizes */
   --h1-font-size: clamp(2rem, 1.3rem + 3vw, 3rem);
