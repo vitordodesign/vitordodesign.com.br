@@ -114,6 +114,7 @@ html {
   --white-color: #f0ebff;
   --black-color: #0a0a0a;
   --gray-color: #303030;
+  --light-gray-color: #606060;
   --light-purple-color: #493674;
   --dark-purple-color: #18102b;
   --red-color: #722dff;
@@ -317,7 +318,7 @@ h4 {
 }
 
 p {
-  color: var(--gray-color);
+  color: var(--light-gray-color);
   font-size: var(--text-font-size);
   font-weight: var(--text-weight);
   line-height: 1.4;
@@ -325,7 +326,7 @@ p {
 
 a {
   text-decoration: none;
-  color: var(--gray-color);
+  color: var(--light-gray-color);
   font-size: var(--text-font-size);
   font-weight: var(--text-weight);
   line-height: 1.4;
