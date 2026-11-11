@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="css/hero.css" />
   <link rel="stylesheet" href="css/inicio.css" />
   <link rel="stylesheet" href="css/portfolio.css" />
+  <link rel="stylesheet" href="css/cases.css" />
   <link rel="stylesheet" href="css/footer.css" />
 
   <link rel="icon" href="img/favicon-red-vitor-martins.png" type="image/png">
@@ -37,7 +38,7 @@
               para anúncios e interfaces online.</p>
             <div class="hero-buttons-wrap">
               <div class="hero-second-buttons-group">
-                <a href="#trabalhos" class="second-button-hero">Ver trabalhos</a>
+                <a href="cases.html" class="second-button-hero">Ver trabalhos</a>
                 <a href="sobre-mim.html" class="second-button-hero">Mais sobre mim</a>
               </div>
               <a href="http://wa.me/+5515981153168/" class="cta-button-hero" target="_blank">
@@ -61,13 +62,32 @@
       </div>
     </section>
 
-    <section id="trabalhos" class="vm-pattern vm-pattern-dark pattern-center">
-      <div class=container>
-        <div class="case-box"></div>
-        <div class="case-column-text">
-          <h2 class="red-line-lateral">Confira meus principais cases
-          </h2>
-          <p> Numquam, tenetur! Dignissimos est soluta eum, expedita error alias illo facilis iure minus, sequi consectetur autem quasi quam sint unde animi. Suscipit!</p>
+    <section class="vm-pattern vm-pattern-dark pattern-center">
+      <div class="container">
+        <div class="cases-home-grid">
+
+          <div id="cases-home" class="cases-home-carousel">
+            <div class="cases-mask">
+              <div id="cases-track" class="cases-track"></div>
+            </div>
+            <div class="cases-controls">
+              <button class="cases-btn prev" aria-label="Case anterior">
+                <img src="svg/arrow-left.svg" alt="">
+              </button>
+              <button class="cases-btn next" aria-label="Próximo case">
+                <img src="svg/arrow-right.svg" alt="">
+              </button>
+              <span class="cases-count"></span>
+            </div>
+          </div>
+
+          <div class="cases-home-text">
+            <h2 class="red-line-lateral">Confira meus principais cases</h2>
+            <p>Esses são os projetos mais completos que desenvolvi recentemente. Contam com a criação de logotipo,
+              identidade visual e diversas peças aplicadas numa só apresentação.</p>
+            <a href="cases.html" class="cta-button">Ver todos os cases</a>
+          </div>
+
         </div>
       </div>
     </section>
@@ -281,6 +301,7 @@
 
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/home-carrossel.js"></script>
+  <script type="module" src="js/home-cases.js"></script>
 </body>
 
 </html>
