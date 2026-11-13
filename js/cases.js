@@ -28,12 +28,10 @@ async function iniciar() {
                     <div class="card-content">
                         <div class="case-media">
                             <img class="case-img" src="${p.thumb}" alt="${p.titulo}" draggable="false">
-                            <span class="case-hint">Passe o mouse para ver mais</span>
                             <div class="case-progress"></div>
                         </div>
                         <div class="card-text">
                             <h3>${p.titulo}</h3>
-                            <p>${p.descricao}</p>
                         </div>
                     </div>
                 </a>

@@ -7,7 +7,7 @@ const initSite = async () => {
         await loadComponents();
 
         // 2. Carrega o que é específico da página atual
-        if (document.querySelector('.software-skill-level')) {
+        if (document.querySelector('[data-level]')) {
             initSkills();
         }
 

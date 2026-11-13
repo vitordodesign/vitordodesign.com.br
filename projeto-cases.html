@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case | Vitor Martins</title>
+
+    <link rel="preload" href="fonts/ZalandoSansExpanded-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/ZalandoSansExpanded-Medium.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zalando+Sans+Expanded:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/portfolio.css" />
+    <link rel="stylesheet" href="css/portfolio-individual.css" />
+    <link rel="stylesheet" href="css/cases.css" />
+    <link rel="stylesheet" href="css/footer.css" />
+
+    <link rel="icon" href="img/favicon-red-vitor-martins.png" type="image/png">
+
+</head>
+
+<body class="pg-projeto-detalhe pg-projeto-case">
+    <div id="header-placeholder"></div>
+
+    <main>
+        <section class="page-title light-purple-maze-bg">
+            <div class="container">
+                <h1 id="projeto-titulo" class="title-section">Carregando...</h1>
+            </div>
+        </section>
+
+        <section class="visualizacao-projeto">
+            <div class="container">
+                <div class="info-projeto-topo">
+                    <h3 class="tec-title">Tecnologias utilizadas</h3>
+                    <div id="projeto-tecs" class="icones-tecnologias"></div>
+                </div>
+
+                <div id="dynamic-content-container">
+
+                    <div id="wrapper-scroll" class="moldura-pc" style="display: none;">
+                        <div id="container-imagem-scroll" class="scroll-interno"></div>
+                    </div>
+
+                    <div id="container-video" class="video-container" style="display: none;"></div>
+
+                    <div id="container-mosaico-pdf" class="mosaico-pdf-grid" style="display: none;"></div>
+
+                    <div id="lightbox-modal" class="lightbox-modal">
+                        <span class="lightbox-close" onclick="fecharLightbox()">&times;</span>
+                        <div class="lightbox-content">
+                            <a class="lightbox-prev" onclick="mudarImagemLightbox(-1)">&#10094;</a>
+                            <img id="lightbox-img" src="">
+                            <a class="lightbox-next" onclick="mudarImagemLightbox(1)">&#10095;</a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="download-case" class="download-case" hidden>
+                    <a id="btn-baixar-case" class="cta-button btn-download" href="#" download>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="icon-download" aria-hidden="true">
+                            <path d="M12 16l-5-5 1.4-1.4 2.6 2.6V4h2v8.2l2.6-2.6L17 11l-5 5zM5 18h14v2H5z" />
+                        </svg>
+                        <span>Baixar Case em PDF</span>
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="descricao-detalhada light-section">
+            <div class="container">
+                <h3 class="tec-title black-text small-bottom-margin">Descrição</h3>
+                <p id="projeto-descricao"></p>
+            </div>
+        </section>
+
+        <section class="projetos-relacionados dark-section">
+            <div class="container">
+                <h3 class="tec-title medium-bottom-margin center-content">Projetos relacionados</h3>
+                <div id="lista-relacionados" class="grid-relacionados">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module" src="js/main.js"></script>
+    <script src="js/cases-util.js"></script>
+    <script src="js/case-download.js"></script>
+    <script src="js/projeto-detalhes.js"></script>
+</body>
+
+</html>

@@ -25,19 +25,29 @@
         return lista;
     }
 
-    // Imagens que aparecem ao passar o mouse no card (máx. 6 por padrão)
-    function resolverPrevia(p, imagens) {
-        if (Array.isArray(p.previa) && p.previa.length) {
-            return p.previa.map(i => (typeof i === 'number' && p.pasta) ? caminho(p, i) : i);
+    function embaralhar(lista) {
+        const a = lista.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
         }
-        const max = p.qtdPrevia || 6;
-        if (imagens.length <= max) return imagens.slice();
+        return a;
+    }
 
-        const saida = [];
-        for (let i = 0; i < max; i++) {
-            saida.push(imagens[Math.round(i * (imagens.length - 1) / (max - 1))]);
+    // Imagens que aparecem ao passar o mouse: a capa (sempre) + 5 sorteadas
+    // entre TODAS as imagens do case, a cada vez que a página carrega.
+    // Quer fixar a lista? Use "previaFixa": [1, 5, 11] no JSON.
+    function resolverPrevia(p, imagens) {
+        if (Array.isArray(p.previaFixa) && p.previaFixa.length) {
+            return p.previaFixa.map(i => (typeof i === 'number' && p.pasta) ? caminho(p, i) : i);
         }
-        return saida;
+        const total = p.qtdPrevia || 6;
+        const capa = p.thumb || imagens[0];
+        const demais = imagens.filter(src => src !== capa);
+        const sorteadas = embaralhar(demais).slice(0, total - 1);
+        // mantém a ordem original do manual (capa, depois as sorteadas em sequência)
+        sorteadas.sort((a, b) => imagens.indexOf(a) - imagens.indexOf(b));
+        return [capa, ...sorteadas];
     }
 
     // Completa o item: imagens, capa (thumb) e prévia

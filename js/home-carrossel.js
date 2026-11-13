@@ -19,6 +19,8 @@ async function carregarCarrosseis() {
         renderizarCards(projetos, 'websites', 'carrossel-fe');
         renderizarCards(projetos, 'designs', 'carrossel-dg');
 
+        configurarFiltros(projetos);
+
         configurarDrag('carrossel-fe');
         configurarDrag('carrossel-dg');
 
@@ -29,12 +31,16 @@ async function carregarCarrosseis() {
     }
 }
 
-function renderizarCards(dados, categoria, elementId) {
+function renderizarCards(dados, categoria, elementId, filtro = 'all') {
     const container = document.getElementById(elementId);
     if (!container) return;
 
-    // 1. Filtra pela categoria (websites ou designs)
-    const filtrados = dados.filter(p => p.tipo === categoria);
+    // 1. Filtra pelo tipo (websites ou designs) e, se houver, pela categoria escolhida.
+    //    O filtro olha TODOS os projetos do tipo, não só os 10 que já estavam na tela.
+    const filtrados = dados.filter(p =>
+        p.tipo === categoria &&
+        (filtro === 'all' || (p.categoria || []).includes(filtro))
+    );
 
     // 2. Limita a no máximo 10 itens mantendo a ordem original do JSON
     const limitados = filtrados.slice(0, 10);
@@ -68,7 +74,7 @@ function moveCarrossel(id, direcao) {
     const cardsPorVez = isMobile ? 1 : 2;
     carrosselStates[id] += direcao;
     const totalCards = track.querySelectorAll('.card-projeto-home').length;
-    const maxIndex = totalCards - cardsPorVez;
+    const maxIndex = Math.max(0, totalCards - cardsPorVez);
 
     if (carrosselStates[id] < 0) carrosselStates[id] = 0;
     if (carrosselStates[id] > maxIndex) carrosselStates[id] = maxIndex;
@@ -106,10 +112,49 @@ function atualizarEstadoVisual(id) {
         prevBtn.classList.remove('force-hover');
     }
     if (nextBtn) {
-        const maxIndex = cards.length - qtdAtiva;
+        const maxIndex = Math.max(0, cards.length - qtdAtiva);
         nextBtn.style.display = currentIndex >= maxIndex ? 'none' : 'flex';
         nextBtn.classList.remove('force-hover');
     }
+}
+
+// --- CATEGORIAS (botões acima de cada carrossel da home) ---
+const temporizadoresFiltro = {};
+
+function configurarFiltros(projetos) {
+    document.querySelectorAll('.filtros-home').forEach(grupo => {
+        const id = grupo.getAttribute('data-carrossel');
+        const tipo = grupo.getAttribute('data-tipo');
+
+        grupo.querySelectorAll('.btn-filtro').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.classList.contains('active')) return;
+                grupo.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                trocarCategoria(projetos, tipo, id, btn.getAttribute('data-filter'));
+            });
+        });
+    });
+}
+
+function trocarCategoria(projetos, tipo, id, filtro) {
+    const track = document.getElementById(id);
+    const mask = track ? track.parentElement : null;
+    if (!track || !mask) return;
+
+    // Some em 0.2s, troca os cards e volta a aparecer em 0.3s (ver portfolio.css)
+    clearTimeout(temporizadoresFiltro[id]);
+    mask.classList.add('is-filtrando');
+
+    temporizadoresFiltro[id] = setTimeout(() => {
+        carrosselStates[id] = 0;
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0px)';
+
+        renderizarCards(projetos, tipo, id, filtro);
+
+        requestAnimationFrame(() => mask.classList.remove('is-filtrando'));
+    }, 200);
 }
 
 function configurarHoverSincronizado(id) {
