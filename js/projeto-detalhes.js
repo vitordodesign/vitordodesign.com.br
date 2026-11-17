@@ -42,8 +42,8 @@ async function carregarProjeto() {
         const response = await fetch('./dados-projetos.json');
         const projetos = await response.json();
 
-        // Cases: monta a lista de imagens a partir de pasta/prefixo/quantidade (js/cases-util.js)
-        if (window.CasesUtil) projetos.forEach(window.CasesUtil.normalizar);
+        // Cases: descobre as imagens que existem na pasta do case (js/cases-util.js)
+        if (window.CasesUtil) await Promise.all(projetos.map(window.CasesUtil.normalizar));
 
         const projeto = projetos.find(p => p.id === projetoId);
 

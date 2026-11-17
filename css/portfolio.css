@@ -227,6 +227,7 @@ button.btn-filtro {
     border-left: 0;
     border-right: 0;
     box-shadow: 0 0 0 !important;
+    color: var(--light-gray-color);
 }
 
 button.btn-filtro.active {

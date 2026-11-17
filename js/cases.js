@@ -12,10 +12,9 @@ async function iniciar() {
         const resposta = await fetch('./dados-projetos.json');
         const dados = await resposta.json();
 
-        const cases = dados
-            .filter(p => p.tipo === 'cases')
-            .map(window.CasesUtil.normalizar)
-            .filter(p => p.imagens.length);
+        const cases = (await Promise.all(
+            dados.filter(p => p.tipo === 'cases').map(window.CasesUtil.normalizar)
+        )).filter(p => p.imagens.length);
 
         if (!cases.length) {
             lista.innerHTML = '<p class="cases-vazio">Novos cases em breve.</p>';
@@ -28,7 +27,6 @@ async function iniciar() {
                     <div class="card-content">
                         <div class="case-media">
                             <img class="case-img" src="${p.thumb}" alt="${p.titulo}" draggable="false">
-                            <div class="case-progress"></div>
                         </div>
                         <div class="card-text">
                             <h3>${p.titulo}</h3>

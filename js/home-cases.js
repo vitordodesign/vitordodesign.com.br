@@ -1,7 +1,7 @@
 /* ==========================================================
    HOME - carrossel de cases ("Confira meus principais cases")
-   Um card por case. Setas, clique e arraste (celular).
-   Ao passar o mouse no card, mostra outras imagens do case.
+   Um card por case. Setas (iguais às de peças e sites), arrastar
+   com o mouse/dedo e prévia ao passar o mouse no card.
    ========================================================== */
 import './cases-util.js';
 import { ativarPreview } from './cases-preview.js';
@@ -17,10 +17,9 @@ async function iniciar() {
         const resposta = await fetch('./dados-projetos.json');
         const dados = await resposta.json();
 
-        const cases = dados
-            .filter(p => p.tipo === 'cases')
-            .map(window.CasesUtil.normalizar)
-            .filter(p => p.imagens.length);
+        const cases = (await Promise.all(
+            dados.filter(p => p.tipo === 'cases').map(window.CasesUtil.normalizar)
+        )).filter(p => p.imagens.length);
 
         if (!cases.length) { bloco.hidden = true; return; }
 
@@ -30,7 +29,6 @@ async function iniciar() {
                     <div class="card-content">
                         <div class="case-media">
                             <img class="case-img" src="${p.thumb}" alt="${p.titulo}" draggable="false">
-                            <div class="case-progress"></div>
                         </div>
                         <div class="card-text">
                             <h3>${p.titulo}</h3>
@@ -52,44 +50,84 @@ async function iniciar() {
 }
 
 function configurarCarrossel(bloco, track, total) {
-    const controles = bloco.querySelector('.cases-controls');
-    const prev = bloco.querySelector('.cases-btn.prev');
-    const next = bloco.querySelector('.cases-btn.next');
-    const contador = bloco.querySelector('.cases-count');
+    const prev = bloco.querySelector('.nav-home.prev');
+    const next = bloco.querySelector('.nav-home.next');
     const mask = bloco.querySelector('.cases-mask');
 
-    // Só 1 case: não precisa de setas
-    if (total < 2) { if (controles) controles.hidden = true; return; }
+    // Só 1 case: sem setas e sem arrastar
+    if (total < 2) return;
 
     let atual = 0;
 
+    const larguraPasso = () => track.querySelector('.case-slide').offsetWidth + GAP;
+
+    // Vai para o case "i" e mostra cada seta só se houver para onde ir
     const ir = (i) => {
         atual = Math.min(total - 1, Math.max(0, i));
-        track.style.transform = `translateX(calc(${-atual * 100}% - ${atual * GAP}px))`;
-        prev.classList.toggle('is-disabled', atual === 0);
-        next.classList.toggle('is-disabled', atual === total - 1);
-        contador.textContent = `${String(atual + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+        track.style.transform = `translateX(${-atual * larguraPasso()}px)`;
+        prev.classList.toggle('disabled', atual === 0);
+        next.classList.toggle('disabled', atual === total - 1);
     };
 
     prev.addEventListener('click', () => ir(atual - 1));
     next.addEventListener('click', () => ir(atual + 1));
+    window.addEventListener('resize', () => ir(atual));
 
-    // Deslizar o dedo no celular
-    let inicioX = null;
-    let deslizou = false;
+    // --- ARRASTAR (mouse e dedo) ---
+    let arrastando = false;
+    let inicioX = 0;
+    let deslocamento = 0;
+    let moveu = false;
+    let bloquearClique = false;
 
-    mask.addEventListener('touchstart', (e) => { inicioX = e.touches[0].clientX; }, { passive: true });
-    mask.addEventListener('touchend', (e) => {
-        if (inicioX === null) return;
-        const dx = e.changedTouches[0].clientX - inicioX;
-        inicioX = null;
-        if (Math.abs(dx) > 50) {
-            ir(atual + (dx < 0 ? 1 : -1));
-            deslizou = true;
-            setTimeout(() => { deslizou = false; }, 300);
-        }
+    mask.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        arrastando = true;
+        moveu = false;
+        inicioX = e.clientX;
+        deslocamento = 0;
     });
-    track.addEventListener('click', (e) => { if (deslizou) e.preventDefault(); }, true);
+
+    window.addEventListener('pointermove', (e) => {
+        if (!arrastando) return;
+        deslocamento = e.clientX - inicioX;
+
+        if (!moveu && Math.abs(deslocamento) > 5) {
+            moveu = true;
+            track.style.transition = 'none';
+            mask.classList.add('is-dragging');
+        }
+        if (!moveu) return;
+
+        // nas pontas (sem case para mostrar) o arraste fica "pesado"
+        let d = deslocamento;
+        if ((atual === 0 && d > 0) || (atual === total - 1 && d < 0)) d *= 0.3;
+        track.style.transform = `translateX(${-atual * larguraPasso() + d}px)`;
+    });
+
+    const soltar = () => {
+        if (!arrastando) return;
+        arrastando = false;
+        mask.classList.remove('is-dragging');
+        track.style.transition = ''; // volta para a transição do CSS
+
+        if (moveu) {
+            if (deslocamento < -50) ir(atual + 1);
+            else if (deslocamento > 50) ir(atual - 1);
+            else ir(atual);
+
+            // evita abrir o case ao soltar o mouse depois de arrastar
+            bloquearClique = true;
+            setTimeout(() => { bloquearClique = false; }, 80);
+        }
+    };
+
+    window.addEventListener('pointerup', soltar);
+    window.addEventListener('pointercancel', soltar);
+
+    track.addEventListener('click', (e) => {
+        if (bloquearClique) e.preventDefault();
+    }, true);
 
     ir(0);
 }

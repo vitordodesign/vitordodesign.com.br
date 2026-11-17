@@ -1,4 +1,38 @@
 [
+
+  {
+    "id": "hot-burger",
+    "tipo": "cases",
+    "titulo": "Hot Burger | Hamburgueria",
+    "descricao": "Identidade visual completa para a hamburgueria Hot Burger: logotipo, paleta de cores, tipografia, fotografia, texturas e padrões, com aplicações em papelaria, cardápio e outros materiais da marca.",
+    "tecnologias": ["illustrator"],
+    "formato": "galeria",
+    "pasta": "img/portfolio/cases/hot-burger/",
+    "prefixo": "hot-burger-",
+    "extensao": "jpg"
+  },
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   {
     "id": "luidecor",
     "tipo": "websites",
@@ -206,7 +240,9 @@
     "linkOnline": "https://site.vitormartins.net/sigmax/",
     "formato": "scroll"
   },
+
   
+
 
   
 
@@ -559,21 +595,6 @@
       "img/portfolio/designs/endomarkerting-agendamento-de-mensagens/endomarkerting-agendamento-de-mensagens2.webp",
       "img/portfolio/designs/endomarkerting-agendamento-de-mensagens/endomarkerting-agendamento-de-mensagens3.webp"
     ]
-  },
-
-  {
-    "id": "hot-burger",
-    "tipo": "cases",
-    "categoria": ["manual-de-marca"],
-    "titulo": "Hot Burger | Manual de Marca",
-    "descricao": "Identidade visual completa para a hamburgueria Hot Burger: logotipo, paleta de cores, tipografia, fotografia, texturas e padrões, com aplicações em papelaria, cardápio e outros materiais da marca.",
-    "tecnologias": ["illustrator"],
-    "formato": "galeria",
-    "pasta": "img/portfolio/cases/hot-burger/",
-    "prefixo": "hot-burger-",
-    "extensao": "jpg",
-    "quantidade": 30,
-    "ignorar": [13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 28, 29],
-    "previa": [1, 5, 11, 12, 16, 25]
   }
+
 ]
