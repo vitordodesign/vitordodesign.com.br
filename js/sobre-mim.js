@@ -22,14 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 2. ANIMAÇÃO DAS BARRAS (CARREGA JUNTO COM A PÁGINA)
-    document.querySelectorAll('.software-skill-level').forEach(barra => {
-        const porcentagem = barra.getAttribute('data-level');
-        if (porcentagem) {
-            setTimeout(() => {
-                barra.style.width = porcentagem;
-            }, 500);
-        }
-    });
+    // As barras de nível (.software-skill-level) são animadas pelo js/inicio.js,
+    // chamado pelo main.js, somente quando aparecem na tela.
 
 });

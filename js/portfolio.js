@@ -28,8 +28,12 @@ function renderizarCards(projetos, containerId, filtroTipo) {
 
 function configurarFiltros() {
     const botoes = document.querySelectorAll('.btn-filtro');
+    const temporizadores = new WeakMap();
+
     botoes.forEach(btn => {
         btn.addEventListener('click', () => {
+            if (btn.classList.contains('active')) return;
+
             // Remove active apenas do grupo de botões atual
             const pai = btn.parentElement;
             pai.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
@@ -39,16 +43,25 @@ function configurarFiltros() {
             // Seleciona os cards pertencentes à seção desse grupo de filtros
             const secao = btn.closest('section');
             const cards = secao.querySelectorAll('.card-projeto');
+            const grid = secao.querySelector('.grid-portfolio');
 
-            cards.forEach(card => {
-                const categoriasDoCard = JSON.parse(card.getAttribute('data-categoria'));
+            const aplicarFiltro = () => {
+                cards.forEach(card => {
+                    const categoriasDoCard = JSON.parse(card.getAttribute('data-categoria'));
+                    const mostrar = filtro === 'all' || categoriasDoCard.includes(filtro);
+                    card.style.display = mostrar ? 'block' : 'none';
+                });
+            };
 
-                if (filtro === 'all' || categoriasDoCard.includes(filtro)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+            if (!grid) { aplicarFiltro(); return; }
+
+            // Animação: some em 0.2s, troca os cards, aparece em 0.3s (ver portfolio.css)
+            clearTimeout(temporizadores.get(grid));
+            grid.classList.add('is-filtrando');
+            temporizadores.set(grid, setTimeout(() => {
+                aplicarFiltro();
+                requestAnimationFrame(() => grid.classList.remove('is-filtrando'));
+            }, 200));
         });
     });
 }

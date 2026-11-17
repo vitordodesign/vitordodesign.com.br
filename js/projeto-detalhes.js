@@ -41,6 +41,10 @@ async function carregarProjeto() {
     try {
         const response = await fetch('./dados-projetos.json');
         const projetos = await response.json();
+
+        // Cases: descobre as imagens que existem na pasta do case (js/cases-util.js)
+        if (window.CasesUtil) await Promise.all(projetos.map(window.CasesUtil.normalizar));
+
         const projeto = projetos.find(p => p.id === projetoId);
 
         if (projeto) {
@@ -257,6 +261,10 @@ function renderizarRelacionados(todosProjetos, projetoAtual) {
 
     // Limita a exibição de 3 projetos no máximo
     filtrados = filtrados.slice(0, 3);
+
+    // Sem outros projetos do mesmo tipo (ex.: só 1 case): esconde a seção inteira
+    const secaoRelacionados = container.closest('section');
+    if (secaoRelacionados) secaoRelacionados.style.display = filtrados.length ? '' : 'none';
 
     // Cria o HTML e adiciona na tela
     container.innerHTML = filtrados.map(p => `

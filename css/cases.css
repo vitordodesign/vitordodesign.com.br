@@ -1,0 +1,174 @@
+/* ==========================================================
+   CASES - card com prévia (home + página cases)
+   Carregar DEPOIS de portfolio.css
+   ========================================================== */
+
+/* --- Área da imagem do card (4:3) --- */
+.case-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--black-color);
+}
+
+.case-media .case-img,
+.case-media .case-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Imagens da prévia ficam por cima da capa e aparecem com fade */
+.case-layer {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.case-layer.is-on {
+    opacity: 1;
+}
+
+/* --- PÁGINA CASES: um embaixo do outro --- */
+.lista-cases {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    padding: 30px 0 20px;
+}
+
+.case-item .card-link {
+    display: block;
+}
+
+.cases-vazio {
+    color: var(--white-color);
+}
+
+
+
+/* --- HOME: carrossel de cases + texto --- */
+.cases-home-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "texto"
+        "carrossel";
+    gap: 50px;
+}
+
+.cases-home-text {
+    grid-area: texto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.cases-home-carousel {
+    grid-area: carrossel;
+    min-width: 0;
+    position: relative;
+    /* as setas (.nav-home) usam este bloco como referência, igual aos carrosséis de peças e sites */
+}
+
+/* A máscara corta os cards vizinhos; o padding negativo deixa a sombra aparecer */
+.cases-mask {
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+    /* arrastar de lado com o mouse/dedo; a rolagem vertical continua normal */
+    overflow: hidden;
+    padding: 10px 30px 30px 10px;
+    margin: -10px -30px -30px -10px;
+}
+
+.cases-track {
+    display: flex;
+    gap: 60px;
+    /* precisa ser igual à constante GAP do home-cases.js e maior que a sombra */
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.cases-mask.is-dragging,
+.cases-mask.is-dragging * {
+    cursor: grabbing !important;
+}
+
+.case-slide {
+    flex: 0 0 100%;
+    min-width: 0;
+}
+
+.case-slide .card-link {
+    display: block;
+}
+
+
+
+/* ========== RESPONSIVO - TABLET 768+ ==========*/
+@media screen and (min-width:768px) {
+    .lista-cases {
+        gap: 80px;
+    }
+}
+
+
+
+/* ========== RESPONSIVO - LAPTOP 1024+ ==========*/
+@media screen and (min-width:1024px) {
+    .cases-home-grid {
+        grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
+        grid-template-areas: "carrossel texto";
+        gap: clamp(80px, 7vw, 120px);
+        /* espaço para a seta "próximo" ficar entre o card e o texto */
+        align-items: center;
+    }
+
+    .lista-cases {
+        gap: 100px;
+    }
+}
+
+
+
+/* --- PÁGINA DO CASE: botão de baixar PDF --- */
+.download-case {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+}
+
+.download-case[hidden] {
+    display: none;
+}
+
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.btn-download .icon-download {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    fill: currentColor;
+}
+
+
+
+/* --- HOME: categorias acima dos carrosséis --- */
+.filtros-home {
+    justify-content: center;
+}
+
+/* Só nos filtros da home (peças e sites continuam com o tamanho padrão) */
+.filtros-home .btn-filtro {
+    font-size: var(--text-font-size);
+    font-weight: var(--text-weight);
+}

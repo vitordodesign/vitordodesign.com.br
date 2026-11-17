@@ -127,6 +127,16 @@
     cursor: grabbing !important;
 }
 
+/* Animação ao trocar de categoria no carrossel da home */
+.track-mask {
+    transition: opacity 0.3s ease;
+}
+
+.track-mask.is-filtrando {
+    opacity: 0;
+    transition-duration: 0.2s;
+}
+
 /* Classe disparada pelo JS para destacar a seta ao passar o mouse nos cards laterais */
 .nav-home.highlight-red {
     background-color: var(--red-color) !important;
@@ -190,6 +200,25 @@
     flex-wrap: wrap;
 }
 
+/* Animação ao trocar de categoria (some 0.2s, aparece 0.3s) */
+.grid-portfolio {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.grid-portfolio.is-filtrando {
+    opacity: 0;
+    transform: translateY(12px);
+    transition-duration: 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .grid-portfolio,
+    .track-mask {
+        transition: none;
+    }
+}
+
 button.btn-filtro {
     background: #0000 !important;
     padding: 16px 26px;
@@ -198,6 +227,7 @@ button.btn-filtro {
     border-left: 0;
     border-right: 0;
     box-shadow: 0 0 0 !important;
+    color: var(--light-gray-color);
 }
 
 button.btn-filtro.active {
