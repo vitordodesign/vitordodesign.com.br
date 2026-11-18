@@ -66,12 +66,19 @@ async function carregarProjeto() {
                 }
             }
 
-            // ERRO 1 CORRIGIDO: Tecnologias (Removido o 'logo-' que estava quebrando o caminho)
-            const containerTecnologias = document.querySelector('.icones-tecnologias');
-            if (containerTecnologias && projeto.tecnologias) {
-                containerTecnologias.innerHTML = projeto.tecnologias.map(tec => `
-                    <img src="svg/${tec}-icon.svg" alt="${tec}" title="${tec.toUpperCase()}">
-                `).join('');
+            // Tags da peça (clicar leva para a página Peças já filtrada por ela)
+            const containerTags = document.getElementById('projeto-tags');
+            if (containerTags) {
+                const { TAGS, tagsDoProjeto } = await import('./tags.js');
+                const ids = tagsDoProjeto(projeto);
+                containerTags.innerHTML = ids.map(id => {
+                    const tag = TAGS.find(t => t.id === id);
+                    // Cases não aparecem na página Peças: lá a tag fica só como texto
+                    if (projeto.tipo === 'cases') return `<span class="tag-projeto">${tag.label}</span>`;
+                    return `<a class="tag-projeto" href="pecas.html?tag=${encodeURIComponent(id)}">${tag.label}</a>`;
+                }).join('');
+                // Sem tags: esconde a faixa do topo
+                if (!ids.length) containerTags.closest('.info-projeto-topo').style.display = 'none';
             }
 
             // Renderização de Mídia
@@ -212,15 +219,152 @@ async function carregarProjeto() {
     }
 }
 
-// === FUNÇÕES DO LIGHTBOX ===
+// === LIGHTBOX: carrossel colado ===
+// Todas as imagens ficam lado a lado; a escolhida fica sempre no meio da tela
+// e as outras coladas nela, mesmo as que ficam fora da tela.
+let lightboxTrack = null;
+let lightboxConstruidoCom = null;   // lista de imagens que já virou slides
+let lightboxQtdConstruida = 0;
+let lightboxDeslocamento = 0;       // posição atual da faixa (px)
+let lbArrastando = false;           // arrastar com mouse ou dedo
+let lbFoiArrastado = false;
+let lbInicioX = 0;
+
+function lightboxAberto() {
+    const modal = document.getElementById('lightbox-modal');
+    return !!modal && modal.style.display === 'flex';
+}
+
+function construirLightbox() {
+    const content = document.querySelector('#lightbox-modal .lightbox-content');
+    if (!content) return false;
+
+    if (!lightboxTrack) {
+        const viewport = document.createElement('div');
+        viewport.className = 'lightbox-viewport';
+        lightboxTrack = document.createElement('div');
+        lightboxTrack.className = 'lightbox-track';
+        viewport.appendChild(lightboxTrack);
+        content.prepend(viewport);
+        configurarArrasteLightbox(viewport);
+    }
+
+    // Só reconstrói se a lista de imagens mudou
+    if (lightboxConstruidoCom === lightboxImagesArray &&
+        lightboxQtdConstruida === lightboxImagesArray.length) return true;
+
+    lightboxTrack.innerHTML = '';
+    lightboxImagesArray.forEach((src, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'lightbox-slide';
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = `Imagem ${i + 1}`;
+        img.draggable = false;
+        img.addEventListener('load', () => centralizarLightbox(false)); // largura só é conhecida após carregar
+
+        slide.appendChild(img);
+        slide.addEventListener('click', () => {
+            if (lbFoiArrastado) return;   // foi um arrastar, não um clique
+            if (i !== currentLightboxIndex) irParaImagemLightbox(i);
+        });
+        lightboxTrack.appendChild(slide);
+    });
+
+    lightboxConstruidoCom = lightboxImagesArray;
+    lightboxQtdConstruida = lightboxImagesArray.length;
+    return true;
+}
+
+// Move a faixa para a imagem atual ficar exatamente no meio da tela
+function centralizarLightbox(animar = true) {
+    if (!lightboxTrack) return;
+    const slides = [...lightboxTrack.children];
+    const ativo = slides[currentLightboxIndex];
+    if (!ativo) return;
+
+    slides.forEach((slide, i) => slide.classList.toggle('active', i === currentLightboxIndex));
+
+    const viewport = lightboxTrack.parentElement;
+    const deslocamento = viewport.clientWidth / 2 - (ativo.offsetLeft + ativo.offsetWidth / 2);
+
+    lightboxDeslocamento = deslocamento;
+    lightboxTrack.style.transition = animar ? '' : 'none';
+    lightboxTrack.style.transform = `translateX(${deslocamento}px)`;
+    if (!animar) {
+        void lightboxTrack.offsetWidth;   // aplica sem animação e depois libera a animação
+        lightboxTrack.style.transition = '';
+    }
+}
+
+// Arrastar (mouse ou dedo): a faixa acompanha o movimento e, ao soltar,
+// vai para a próxima/anterior se arrastou mais de 50px (igual ao carrossel da Início)
+function configurarArrasteLightbox(viewport) {
+    const posicaoX = e => {
+        if (e.touches && e.touches.length) return e.touches[0].clientX;
+        if (e.changedTouches && e.changedTouches.length) return e.changedTouches[0].clientX;
+        return e.clientX;
+    };
+
+    const iniciar = e => {
+        if (e.type === 'mousedown' && e.button !== 0) return;
+        lbArrastando = true;
+        lbFoiArrastado = false;
+        lbInicioX = posicaoX(e);
+        lightboxTrack.style.transition = 'none';
+        viewport.classList.add('is-dragging');
+    };
+
+    const mover = e => {
+        if (!lbArrastando) return;
+        const dx = posicaoX(e) - lbInicioX;
+        if (Math.abs(dx) > 5) {
+            if (e.cancelable) e.preventDefault();
+            lbFoiArrastado = true;
+            lightboxTrack.style.transform = `translateX(${lightboxDeslocamento + dx}px)`;
+        }
+    };
+
+    const terminar = e => {
+        if (!lbArrastando) return;
+        lbArrastando = false;
+        viewport.classList.remove('is-dragging');
+        lightboxTrack.style.transition = '';
+
+        if (lbFoiArrastado) {
+            const diff = lbInicioX - posicaoX(e);
+            const ultimo = lightboxImagesArray.length - 1;
+            let novo = currentLightboxIndex;
+            if (diff > 50) novo = Math.min(novo + 1, ultimo);
+            else if (diff < -50) novo = Math.max(novo - 1, 0);
+            irParaImagemLightbox(novo);   // se não mudou, volta para o meio
+        }
+        setTimeout(() => { lbFoiArrastado = false; }, 50);
+    };
+
+    viewport.addEventListener('mousedown', iniciar);
+    window.addEventListener('mousemove', mover);
+    window.addEventListener('mouseup', terminar);
+    viewport.addEventListener('touchstart', iniciar, { passive: true });
+    window.addEventListener('touchmove', mover, { passive: false });
+    window.addEventListener('touchend', terminar);
+    window.addEventListener('touchcancel', terminar);
+}
+
+function irParaImagemLightbox(index) {
+    currentLightboxIndex = index;
+    centralizarLightbox(true);
+}
+
 function abrirLightbox(index) {
     const modal = document.getElementById('lightbox-modal');
-    const img = document.getElementById('lightbox-img');
-    if (modal && img && lightboxImagesArray[index]) {
-        currentLightboxIndex = index;
-        img.src = lightboxImagesArray[index];
-        modal.style.display = 'flex';
-    }
+    if (!modal || !lightboxImagesArray[index]) return;
+    if (!construirLightbox()) return;
+
+    currentLightboxIndex = index;
+    modal.style.display = 'flex';
+    centralizarLightbox(false);
 }
 
 function fecharLightbox() {
@@ -231,18 +375,9 @@ function fecharLightbox() {
 }
 
 function mudarImagemLightbox(direcao) {
-    currentLightboxIndex += direcao;
-
-    if (currentLightboxIndex < 0) {
-        currentLightboxIndex = lightboxImagesArray.length - 1;
-    } else if (currentLightboxIndex >= lightboxImagesArray.length) {
-        currentLightboxIndex = 0;
-    }
-
-    const img = document.getElementById('lightbox-img');
-    if (img && lightboxImagesArray[currentLightboxIndex]) {
-        img.src = lightboxImagesArray[currentLightboxIndex];
-    }
+    const total = lightboxImagesArray.length;
+    if (!total) return;
+    irParaImagemLightbox((currentLightboxIndex + direcao + total) % total);
 }
 
 // === FUNÇÃO DE PROJETOS RELACIONADOS ===
@@ -287,15 +422,27 @@ function renderizarRelacionados(todosProjetos, projetoAtual) {
 document.addEventListener('DOMContentLoaded', () => {
     carregarProjeto();
 
-    // Fechar lightbox ao clicar fora da imagem
     const modal = document.getElementById('lightbox-modal');
     if (modal) {
+        // Clicar no fundo (fora das imagens e das setas) fecha
         modal.addEventListener('click', function (e) {
-            if (e.target !== document.getElementById('lightbox-img') &&
-                !e.target.classList.contains('lightbox-prev') &&
-                !e.target.classList.contains('lightbox-next')) {
+            if (lbFoiArrastado) return;   // soltou um arrastar em cima do fundo: não fecha
+            if (!e.target.closest('.lightbox-slide, .lightbox-prev, .lightbox-next')) {
                 fecharLightbox();
             }
         });
     }
+
+    // Teclado: setas trocam, Esc fecha
+    document.addEventListener('keydown', e => {
+        if (!lightboxAberto()) return;
+        if (e.key === 'ArrowLeft') mudarImagemLightbox(-1);
+        else if (e.key === 'ArrowRight') mudarImagemLightbox(1);
+        else if (e.key === 'Escape') fecharLightbox();
+    });
+
+    // Redimensionar a janela: recentraliza a imagem atual
+    window.addEventListener('resize', () => {
+        if (lightboxAberto()) centralizarLightbox(false);
+    });
 });

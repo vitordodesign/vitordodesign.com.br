@@ -1,0 +1,155 @@
+/* ==========================================================
+   PEÇAS - categorias, tags dos cards e tags escolhidas
+   (carregado depois do portfolio.css)
+   ========================================================== */
+
+/* Cores das tags (sem contorno): normal e hover/ativa */
+:root {
+    --tag-cor: #493674;
+    --tag-cor-ativa: #722dff;
+}
+
+/* Categorias em branco; sem peças (com as tags escolhidas) = 20% e sem clique */
+.pg-pecas button.btn-filtro {
+    color: var(--white-color);
+}
+
+.pg-pecas button.btn-filtro:hover:not(:disabled) {
+    color: var(--red-color);
+}
+
+button.btn-filtro:disabled {
+    opacity: 0.2;
+    pointer-events: none;
+    cursor: default;
+}
+
+/* Tags escolhidas: ficam embaixo das categorias, com X para remover */
+.tags-ativas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tags-ativas[hidden] {
+    display: none;
+}
+
+.tag-ativa {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 6px 6px 14px;
+    background: var(--tag-cor-ativa);
+    color: var(--white-color);
+    font-size: 0.85rem;
+    font-weight: var(--text-weight);
+    line-height: 1.2;
+}
+
+button.tag-remover {
+    box-shadow: none;
+    border: 0;
+    background: transparent;
+    padding: 0 6px;
+    color: var(--white-color);
+    font-size: 1.3rem;
+    font-weight: var(--title-weight);
+    line-height: 1;
+}
+
+button.tag-remover:hover {
+    opacity: 0.7;
+}
+
+/* Cards: o link do título cobre o card inteiro; as tags ficam por cima dele */
+.grid-portfolio .card-content {
+    position: relative;
+    cursor: pointer;
+}
+
+.grid-portfolio .card-link {
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+}
+
+.grid-portfolio .card-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 2;
+}
+
+button.tag-chip {
+    box-shadow: none;
+    padding: 7px 13px;
+    border: 0;
+    background: var(--tag-cor);
+    color: var(--white-color);
+    font-size: 0.85rem;
+    font-weight: var(--text-weight);
+    line-height: 1.2;
+    transition: none;
+}
+
+/* hover e tag escolhida */
+button.tag-chip:hover,
+button.tag-chip.is-selected {
+    background: var(--tag-cor-ativa);
+}
+
+/* --- INÍCIO: tags nos cards do carrossel (clicar abre a página Peças) --- */
+.card-projeto-home .card-content {
+    height: 100%;
+}
+
+.tag-chip-home {
+    display: inline-block;
+    padding: 7px 13px;
+    background: var(--tag-cor);
+    color: var(--white-color);
+    font-size: 0.85rem;
+    font-weight: var(--text-weight);
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.tag-chip-home:hover {
+    background: var(--tag-cor-ativa);
+}
+
+/* --- PÁGINA DA PEÇA: tags no topo (clicar abre a página Peças) --- */
+.tags-projeto {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    padding-bottom: 24px;
+}
+
+/* link nas peças e sites; texto simples nos cases */
+.tag-projeto {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--tag-cor);
+    color: var(--white-color);
+    font-size: 1rem;
+    font-weight: var(--text-weight);
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+a.tag-projeto:hover {
+    background: var(--tag-cor-ativa);
+    color: var(--white-color);
+}
