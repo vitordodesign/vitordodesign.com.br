@@ -326,7 +326,7 @@ p {
 
 a {
   text-decoration: none;
-  color: var(--light-gray-color);
+  color: var(--light-purple-color);
   font-size: var(--text-font-size);
   font-weight: var(--text-weight);
   line-height: 1.4;

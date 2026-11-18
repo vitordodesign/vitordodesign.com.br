@@ -401,3 +401,64 @@ button.btn-filtro:hover {
 /* ========== RESPONSIVO - DESKTOP 1440+ ==========*/
 
 @media screen and (min-width:1440px) {}
+
+/* --- PEÇAS: TAGS E CATEGORIAS INDISPONÍVEIS --- */
+
+/* Categoria sem peças (com a tag escolhida): 20% de opacidade e sem clique */
+button.btn-filtro:disabled,
+button.btn-filtro.is-indisponivel {
+    opacity: 0.2;
+    pointer-events: none;
+    cursor: default;
+}
+
+/* Link do título cobre o card inteiro; as tags ficam por cima dele */
+.grid-portfolio .card-content {
+    position: relative;
+    cursor: pointer;
+}
+
+.grid-portfolio .card-link {
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+}
+
+.grid-portfolio .card-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 2;
+}
+
+button.tag-chip {
+    box-shadow: none;
+    padding: 4px 10px;
+    border: 3px solid var(--black-color);
+    background: transparent;
+    color: var(--black-color);
+    font-size: 0.85rem;
+    font-weight: var(--text-weight);
+    line-height: 1.2;
+    transition: none;
+}
+
+button.tag-chip:hover {
+    background: var(--light-purple-color);
+    border-color: var(--light-purple-color);
+    color: var(--white-color);
+}
+
+button.tag-chip.is-selected {
+    background: var(--red-color);
+    border-color: var(--red-color);
+    color: var(--white-color);
+}

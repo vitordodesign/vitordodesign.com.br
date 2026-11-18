@@ -1,5 +1,6 @@
+import { TAGS, categoriasDoProjeto, tagsDoProjeto } from './tags.js';
+
 const carrosselStates = {
-    'carrossel-fe': 0,
     'carrossel-dg': 0
 };
 
@@ -16,36 +17,47 @@ async function carregarCarrosseis() {
         const response = await fetch('./dados-projetos.json');
         const projetos = await response.json();
 
-        renderizarCards(projetos, 'websites', 'carrossel-fe');
         renderizarCards(projetos, 'designs', 'carrossel-dg');
 
         configurarFiltros(projetos);
+        desativarCategoriasVazias(projetos);
 
-        configurarDrag('carrossel-fe');
         configurarDrag('carrossel-dg');
 
-        configurarHoverSincronizado('carrossel-fe');
         configurarHoverSincronizado('carrossel-dg');
     } catch (e) {
         console.error("Erro ao carregar os projetos:", e);
     }
 }
 
+// Embaralha uma lista (Fisher-Yates) sem alterar a original
+function embaralhar(lista) {
+    const copia = [...lista];
+    for (let i = copia.length - 1; i > 0; i--) {
+        const k = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[k]] = [copia[k], copia[i]];
+    }
+    return copia;
+}
+
 function renderizarCards(dados, categoria, elementId, filtro = 'all') {
     const container = document.getElementById(elementId);
     if (!container) return;
 
-    // 1. Filtra pelo tipo (websites ou designs) e, se houver, pela categoria escolhida.
-    //    O filtro olha TODOS os projetos do tipo, não só os 10 que já estavam na tela.
+    // 1. Filtra pelo tipo e, se houver, pela categoria escolhida.
+    //    O carrossel de peças também traz os sites (categoria "site").
+    //    O filtro olha TODOS os projetos, não só os 10 que já estavam na tela.
+    const tipos = categoria === 'designs' ? ['designs', 'websites'] : [categoria];
     const filtrados = dados.filter(p =>
-        p.tipo === categoria &&
-        (filtro === 'all' || (p.categoria || []).includes(filtro))
+        tipos.includes(p.tipo) &&
+        (filtro === 'all' || categoriasDoProjeto(p).includes(filtro))
     );
 
-    // 2. Limita a no máximo 10 itens mantendo a ordem original do JSON
-    const limitados = filtrados.slice(0, 10);
+    // 2. Sorteia a ordem (embaralha) e limita a no máximo 10 itens.
+    //    Cada vez que a página carrega ou uma categoria é clicada, o sorteio muda.
+    const limitados = embaralhar(filtrados).slice(0, 10);
 
-    // 3. Renderiza apenas os 10 selecionados
+    // 3. Renderiza apenas os 10 sorteados
     container.innerHTML = limitados.map((p, index) => `
         <div class="card-projeto-home" data-index="${index}">
             <a href="projeto-${p.tipo}.html?id=${p.id}" class="card-content" draggable="false">
@@ -54,6 +66,7 @@ function renderizarCards(dados, categoria, elementId, filtro = 'all') {
                 </div>
                 <div class="card-text">
                     <h3>${p.titulo}</h3>
+                    ${tagsHtml(p)}
                 </div>
             </a>
         </div>
@@ -62,6 +75,27 @@ function renderizarCards(dados, categoria, elementId, filtro = 'all') {
     setTimeout(() => {
         atualizarEstadoVisual(elementId);
     }, 50);
+}
+
+// Tags do card (clicar leva para a página Peças já filtrada por essa tag)
+function tagsHtml(projeto) {
+    const ids = tagsDoProjeto(projeto);
+    if (!ids.length) return '';
+    return `<div class="card-tags">${ids.map(id =>
+        `<span class="tag-chip-home" data-tag="${id}">${TAGS.find(t => t.id === id).label}</span>`
+    ).join('')}</div>`;
+}
+
+// Categoria sem nenhuma peça: fica com 20% de opacidade e sem clique (igual à página Peças)
+function desativarCategoriasVazias(projetos) {
+    document.querySelectorAll('.filtros-home[data-tipo="designs"] .btn-filtro').forEach(btn => {
+        const filtro = btn.getAttribute('data-filter');
+        if (filtro === 'all') return;
+        const existe = projetos.some(p =>
+            (p.tipo === 'designs' || p.tipo === 'websites') && categoriasDoProjeto(p).includes(filtro)
+        );
+        btn.disabled = !existe;
+    });
 }
 
 function moveCarrossel(id, direcao) {
@@ -258,6 +292,15 @@ function configurarDrag(id) {
     track.addEventListener('click', (e) => {
         if (foiArrastado) { e.preventDefault(); return; }
         const card = e.target.closest('.card-projeto-home');
+
+        // Clique numa tag de um card ativo: abre a página Peças filtrada por ela
+        const tag = e.target.closest('.tag-chip-home');
+        if (tag && card && card.classList.contains('active')) {
+            e.preventDefault();
+            window.location.href = 'pecas.html?tag=' + encodeURIComponent(tag.getAttribute('data-tag'));
+            return;
+        }
+
         if (card && !card.classList.contains('active')) {
             e.preventDefault();
             const clickedIndex = parseInt(card.getAttribute('data-index'));
@@ -269,6 +312,5 @@ function configurarDrag(id) {
 carregarCarrosseis();
 
 window.addEventListener('resize', () => {
-    moveCarrossel('carrossel-fe', 0);
     moveCarrossel('carrossel-dg', 0);
 });
