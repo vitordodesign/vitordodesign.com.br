@@ -508,7 +508,7 @@ h2.title-section:hover,
   mask-size: cover;
   -webkit-mask-repeat: no-repeat;
   background-color: var(--red-color);
-  opacity: 0.4;
+  opacity: 0.2;
 }
 
 .light-purple-maze-bg:before {
@@ -525,7 +525,7 @@ h2.title-section:hover,
   -webkit-mask-repeat: no-repeat;
   background-color: var(--light-purple-color);
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.2;
 }
 
 .red-maze-bg>* {

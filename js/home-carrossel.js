@@ -25,6 +25,8 @@ async function carregarCarrosseis() {
         configurarDrag('carrossel-dg');
 
         configurarHoverSincronizado('carrossel-dg');
+
+        configurarAutoplay('carrossel-dg');
     } catch (e) {
         console.error("Erro ao carregar os projetos:", e);
     }
@@ -307,6 +309,70 @@ function configurarDrag(id) {
             moveCarrossel(id, clickedIndex > carrosselStates[id] ? 1 : -1);
         }
     });
+}
+
+// --- AUTOPLAY: avança 1 slide a cada 2 segundos, como clicar na seta da direita ---
+// Pausa com o mouse em cima do carrossel (cards e setas), enquanto arrasta/toca
+// e com a aba em segundo plano. Ao chegar no último slide, volta para o primeiro.
+const INTERVALO_AUTOPLAY = 2000;
+
+function configurarAutoplay(id) {
+    const track = document.getElementById(id);
+    const wrapper = track ? track.closest('.wrapper-carrossel-home') : null;
+    if (!track || !wrapper) return;
+
+    // Quem pediu menos movimento no sistema fica sem autoplay
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let timer = null;
+    let pausado = false;
+
+    const avancar = () => {
+        if (pausado || isDragging) return;
+        const cardsPorVez = window.innerWidth < 768 ? 1 : 2;
+        const total = track.querySelectorAll('.card-projeto-home').length;
+        const maxIndex = Math.max(0, total - cardsPorVez);
+        if (maxIndex === 0) return;
+
+        if (carrosselStates[id] >= maxIndex) {
+            moveCarrossel(id, -carrosselStates[id]); // chegou no fim: volta ao começo
+        } else {
+            moveCarrossel(id, 1);
+        }
+    };
+
+    const iniciar = () => {
+        clearInterval(timer);
+        if (pausado) return;
+        timer = setInterval(avancar, INTERVALO_AUTOPLAY);
+    };
+
+    const pausar = () => {
+        pausado = true;
+        clearInterval(timer);
+    };
+
+    const retomar = () => {
+        if (wrapper.matches(':hover')) return; // mouse ainda em cima: continua pausado
+        pausado = false;
+        iniciar(); // recomeça a contagem dos 2 segundos
+    };
+
+    // Mouse em cima do carrossel (peças e setas): pausa
+    wrapper.addEventListener('mouseenter', pausar);
+    wrapper.addEventListener('mouseleave', retomar);
+
+    // Celular: pausa enquanto o dedo está na tela
+    wrapper.addEventListener('touchstart', pausar, { passive: true });
+    wrapper.addEventListener('touchend', retomar);
+    wrapper.addEventListener('touchcancel', retomar);
+
+    // Aba em segundo plano: pausa
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pausar(); else retomar();
+    });
+
+    iniciar();
 }
 
 carregarCarrosseis();
