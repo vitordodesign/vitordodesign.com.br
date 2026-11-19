@@ -56,8 +56,20 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
         "texto"
-        "carrossel";
+        "carrossel"
+        "botao";
     gap: 50px;
+}
+
+/* Botão "Ver todos os cases": são dois iguais.
+   O do texto só aparece no desktop; o de baixo só no celular/tablet (fim da seção). */
+.cases-btn-mobile {
+    grid-area: botao;
+    justify-self: start;
+}
+
+.cases-btn-desktop {
+    display: none;
 }
 
 .cases-home-text {
@@ -127,6 +139,14 @@
         gap: clamp(80px, 7vw, 120px);
         /* espaço para a seta "próximo" ficar entre o card e o texto */
         align-items: center;
+    }
+
+    .cases-btn-desktop {
+        display: inline-block;
+    }
+
+    .cases-btn-mobile {
+        display: none;
     }
 
     .lista-cases {

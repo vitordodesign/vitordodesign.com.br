@@ -381,18 +381,45 @@ function mudarImagemLightbox(direcao) {
 }
 
 // === FUNÇÃO DE PROJETOS RELACIONADOS ===
-function renderizarRelacionados(todosProjetos, projetoAtual) {
+// Embaralha uma lista (Fisher-Yates) sem alterar a original
+function embaralharLista(lista) {
+    const copia = [...lista];
+    for (let i = copia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    return copia;
+}
+
+async function renderizarRelacionados(todosProjetos, projetoAtual) {
     const container = document.getElementById('lista-relacionados');
     if (!container) return;
 
-    // Filtra pelo mesmo tipo (websites, designs, etc), removendo o próprio projeto aberto
-    let filtrados = todosProjetos.filter(p => p.tipo === projetoAtual.tipo && p.id !== projetoAtual.id);
+    const { categoriasDoProjeto, tagsDoProjeto } = await import('./tags.js');
 
-    // Embaralha aleatoriamente (Algoritmo Fisher-Yates)
-    for (let i = filtrados.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [filtrados[i], filtrados[j]] = [filtrados[j], filtrados[i]];
-    }
+    // Peças e sites se misturam (mesma lógica da página Peças); cases só com cases
+    const ehPeca = t => t === 'designs' || t === 'websites';
+    const mesmoGrupo = p => ehPeca(projetoAtual.tipo) ? ehPeca(p.tipo) : p.tipo === projetoAtual.tipo;
+
+    const categoriasAtual = categoriasDoProjeto(projetoAtual);
+    const tagsAtual = tagsDoProjeto(projetoAtual);
+
+    // Separa os candidatos (sem o próprio projeto) em dois grupos:
+    //  1) mesma categoria E pelo menos uma tag em comum  (mais parecidos)
+    //  2) mesma categoria OU pelo menos uma tag em comum
+    // Quem não tem nada em comum não entra.
+    const grupo1 = [];
+    const grupo2 = [];
+    todosProjetos.forEach(p => {
+        if (p.id === projetoAtual.id || !mesmoGrupo(p)) return;
+        const mesmaCategoria = categoriasDoProjeto(p).some(c => categoriasAtual.includes(c));
+        const mesmaTag = tagsDoProjeto(p).some(t => tagsAtual.includes(t));
+        if (mesmaCategoria && mesmaTag) grupo1.push(p);
+        else if (mesmaCategoria || mesmaTag) grupo2.push(p);
+    });
+
+    // Aleatório dentro de cada grupo; o grupo 1 vem primeiro
+    let filtrados = [...embaralharLista(grupo1), ...embaralharLista(grupo2)];
 
     // Limita a exibição de 3 projetos no máximo
     filtrados = filtrados.slice(0, 3);

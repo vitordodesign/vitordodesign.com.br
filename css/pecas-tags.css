@@ -109,8 +109,14 @@ button.tag-chip.is-selected {
 }
 
 /* --- INÍCIO: tags nos cards do carrossel (clicar abre a página Peças) --- */
+/* Cada card tem a altura do próprio conteúdo (título + tags), alinhado no topo,
+   sem esticar até a altura do card mais alto (isso criava a barra roxa embaixo) */
+.track-carrossel {
+    align-items: flex-start;
+}
+
 .card-projeto-home .card-content {
-    height: 100%;
+    height: auto;
 }
 
 .tag-chip-home {
@@ -152,4 +158,16 @@ button.tag-chip.is-selected {
 a.tag-projeto:hover {
     background: var(--tag-cor-ativa);
     color: var(--white-color);
+}
+
+/* --- PEÇAS: MOSAICO ---
+   Linhas de 1px; o JS (portfolio.js) define quantas linhas cada card ocupa.
+   As colunas seguem o responsivo do portfolio.css (1 coluna, 2 a partir de 768px).
+   O espaço vertical entre os cards vem do JS (30px somados à altura). */
+.grid-portfolio {
+    grid-auto-rows: 1px;
+    row-gap: 0;
+    column-gap: 30px;
+    padding-bottom: 0;
+    align-items: start;
 }

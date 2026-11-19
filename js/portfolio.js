@@ -25,13 +25,27 @@ async function carregarProjetos() {
     return response.json();
 }
 
+// Embaralha uma lista (Fisher-Yates) sem alterar a original
+function embaralhar(lista) {
+    const copia = [...lista];
+    for (let i = copia.length - 1; i > 0; i--) {
+        const k = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[k]] = [copia[k], copia[i]];
+    }
+    return copia;
+}
+
 function renderizarCards(projetos, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const lista = projetos
-        .filter(p => p.tipo === 'designs' || p.tipo === 'websites')
-        .map(p => ({ projeto: p, categorias: categoriasDoProjeto(p), tags: tagsDoProjeto(p) }));
+    // Sorteia a ordem a cada carregamento da página (igual ao carrossel da home).
+    // O sorteio acontece uma vez só: ao filtrar, a ordem sorteada se mantém.
+    const lista = embaralhar(
+        projetos
+            .filter(p => p.tipo === 'designs' || p.tipo === 'websites')
+            .map(p => ({ projeto: p, categorias: categoriasDoProjeto(p), tags: tagsDoProjeto(p) }))
+    );
 
     container.innerHTML = lista.map(({ projeto, categorias, tags }) => `
         <div class="card-projeto" data-categoria='${JSON.stringify(categorias)}' data-tags='${JSON.stringify(tags)}'>
@@ -44,9 +58,9 @@ function renderizarCards(projetos, containerId) {
                     ${tags.length ? `
                     <div class="card-tags">
                         ${tags.map(id => {
-                            const tag = TAGS.find(t => t.id === id);
-                            return `<button type="button" class="tag-chip" data-tag="${id}" aria-pressed="false">${tag.label}</button>`;
-                        }).join('')}
+        const tag = TAGS.find(t => t.id === id);
+        return `<button type="button" class="tag-chip" data-tag="${id}" aria-pressed="false">${tag.label}</button>`;
+    }).join('')}
                     </div>` : ''}
                 </div>
             </div>
@@ -59,6 +73,32 @@ function renderizarCards(projetos, containerId) {
         categorias: lista[i].categorias,
         tags: lista[i].tags
     }));
+}
+
+// MOSAICO: cada card ocupa só a altura que precisa (títulos e tags de 1 ou 2 linhas).
+// O CSS cria linhas de 1px e aqui dizemos quantas linhas cada card ocupa.
+// As colunas continuam sendo as do CSS (1 no celular, 2 a partir de 768px).
+const ESPACO_MOSAICO = 30; // mesmo valor do espaço entre os cards
+let quadroMosaico = null;
+
+function organizarMosaico() {
+    cards.forEach(({ el }) => {
+        if (el.style.display === 'none') return;
+        const conteudo = el.firstElementChild; // .card-content
+        const altura = conteudo.getBoundingClientRect().height;
+        el.style.gridRowEnd = `span ${Math.ceil(altura + ESPACO_MOSAICO)}`;
+    });
+}
+
+function agendarMosaico() {
+    cancelAnimationFrame(quadroMosaico);
+    quadroMosaico = requestAnimationFrame(organizarMosaico);
+}
+
+// Recalcula sempre que o tamanho de um card mudar (resize, fonte carregando, card aparecendo)
+function observarMosaico() {
+    const observador = new ResizeObserver(agendarMosaico);
+    cards.forEach(({ el }) => observador.observe(el.firstElementChild));
 }
 
 const passaNaTag = card => tagsAtivas.every(id => card.tags.includes(id));
@@ -83,7 +123,9 @@ function atualizarBotoes() {
 
     // Chips dos cards: a tag escolhida continua no card, destacada (roxo forte, igual ao hover)
     grid.querySelectorAll('.tag-chip').forEach(chip => {
-        chip.classList.toggle('is-selected', tagsAtivas.includes(chip.dataset.tag));
+        const selecionada = tagsAtivas.includes(chip.dataset.tag);
+        chip.classList.toggle('is-selected', selecionada);
+        chip.setAttribute('aria-pressed', selecionada);
     });
 
     atualizarBarraTags();
@@ -103,6 +145,7 @@ function atualizarCards() {
         const mostrar = passaNaTag(card) && passaNaCategoria(card, categoriaAtiva);
         card.el.style.display = mostrar ? 'block' : 'none';
     });
+    organizarMosaico();
 }
 
 // Atualiza botões na hora e troca os cards com a animação (some 0.2s, aparece 0.3s)
@@ -117,6 +160,31 @@ function atualizar(animar = true) {
         atualizarCards();
         requestAnimationFrame(() => grid.classList.remove('is-filtrando'));
     }, 200);
+}
+
+// Sobe suavemente até o topo da seção (categorias) e, ao mesmo tempo, troca os cards.
+// Para a página não "pular" para o footer quando os cards diminuem no meio da subida,
+// a altura da lista fica travada até a rolagem terminar.
+function subirEAtualizar(mudar) {
+    const filtros = document.querySelector('.filtros-container');
+    const header = document.getElementById('header-placeholder');
+    const alturaHeader = header ? header.offsetHeight : 0;
+    const destino = Math.max(0, filtros.getBoundingClientRect().top + window.scrollY - alturaHeader - 40);
+
+    // Já está no topo (ou acima): só atualiza
+    if (window.scrollY <= destino + 2) { mudar(); return; }
+
+    grid.style.minHeight = grid.offsetHeight + 'px';
+    window.scrollTo({ top: destino, behavior: 'smooth' });
+    mudar();
+
+    // Libera a altura quando a rolagem termina (ou no máximo em 1 segundo)
+    const inicio = performance.now();
+    (function esperar() {
+        const chegou = Math.abs(window.scrollY - destino) <= 2;
+        if (chegou || performance.now() - inicio > 1000) grid.style.minHeight = '';
+        else requestAnimationFrame(esperar);
+    })();
 }
 
 function configurarFiltros() {
@@ -136,20 +204,30 @@ function configurarFiltros() {
     barraTags.hidden = true;
     document.querySelector('.filtros-container').insertAdjacentElement('afterend', barraTags);
 
-    // Clique numa tag do card: adiciona à seleção
+    // Clique numa tag do card: seleciona; clicar de novo numa tag já selecionada, remove
     grid.addEventListener('click', e => {
         const chip = e.target.closest('.tag-chip');
-        if (!chip || tagsAtivas.includes(chip.dataset.tag)) return;
-        tagsAtivas.push(chip.dataset.tag);
-        atualizar();
+        if (!chip) return;
+        const tagClicada = chip.dataset.tag;
+        subirEAtualizar(() => {
+            if (tagsAtivas.includes(tagClicada)) {
+                tagsAtivas = tagsAtivas.filter(id => id !== tagClicada);
+            } else {
+                tagsAtivas.push(tagClicada);
+            }
+            atualizar();
+        });
     });
 
     // Clique no X de uma tag escolhida: remove da seleção
     barraTags.addEventListener('click', e => {
         const remover = e.target.closest('.tag-remover');
         if (!remover) return;
-        tagsAtivas = tagsAtivas.filter(id => id !== remover.dataset.tag);
-        atualizar();
+        const tagRemovida = remover.dataset.tag;
+        subirEAtualizar(() => {
+            tagsAtivas = tagsAtivas.filter(id => id !== tagRemovida);
+            atualizar();
+        });
     });
 
     // Links de fora: pecas.html?categoria=site  e/ou  pecas.html?tag=ebook
@@ -171,6 +249,7 @@ function configurarFiltros() {
 carregarProjetos().then(projetos => {
     renderizarCards(projetos, 'lista-projetos-designs');
     configurarFiltros();
+    observarMosaico();
 }).catch(erro => {
     console.error("Erro ao inicializar portfólio:", erro);
 });
